@@ -75,6 +75,9 @@ export abstract class GanttView {
         secondary?: string;
     } = {};
 
+    // Custom date lines for milestones, deadlines, etc.
+    customDateLines: GanttDate[] = [];
+
     constructor(start: GanttViewDate, end: GanttViewDate, options: GanttViewOptions) {
         this.options = Object.assign({}, viewOptions, options);
 
@@ -226,6 +229,21 @@ export abstract class GanttView {
         } else {
             return null;
         }
+    }
+
+    // 获取自定义日期线的X坐标
+    getCustomDateXPoints(): Array<{ date: GanttDate; x: number }> {
+        return this.customDateLines
+            .filter((date) => date.value > this.start.value && date.value < this.end.value)
+            .map((date) => ({
+                date,
+                x: this.getXPointByDate(date.startOfDay()) + this.getDayOccupancyWidth(date.startOfDay()) / 2
+            }));
+    }
+
+    // 设置自定义日期线
+    setCustomDateLines(dates: (Date | GanttDate)[]): void {
+        this.customDateLines = dates.map((date) => (date instanceof GanttDate ? date : new GanttDate(date)));
     }
 
     // 获取指定时间的X坐标

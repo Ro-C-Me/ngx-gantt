@@ -51,12 +51,47 @@ export class GanttCalendarGridComponent implements OnInit, OnDestroy {
         }
     }
 
+    setCustomDateLines() {
+        const customDatePoints = this.view.getCustomDateXPoints();
+        const overlay = this.elementRef.nativeElement.getElementsByClassName('gantt-calendar-today-overlay')[0] as HTMLElement;
+
+        // Remove existing custom lines and labels
+        const existingCustomLines = overlay.querySelectorAll('.custom-date-line');
+        const existingCustomLabels = overlay.querySelectorAll('.custom-date-label');
+        existingCustomLines.forEach((line) => line.remove());
+        existingCustomLabels.forEach((label) => label.remove());
+
+        // Add new custom lines and labels
+        customDatePoints.forEach((point, index) => {
+            // Create the line
+            const line = document.createElement('span');
+            line.className = 'custom-date-line';
+            line.style.left = `${point.x}px`;
+            line.style.top = `0px`;
+            line.style.bottom = `${-mainHeight}px`;
+            line.setAttribute('data-date', point.date.format('yyyy-MM-dd'));
+            overlay.appendChild(line);
+
+            // Create the label at the top of the line
+            const label = document.createElement('span');
+            label.className = 'custom-date-label';
+            label.textContent = 'Custom';
+            label.style.left = `${point.x}px`;
+            label.style.top = '0px';
+            overlay.appendChild(label);
+        });
+    }
+
     ngOnInit() {
+        // Test: Füge ein Datum hinzu, das näher am aktuellen Zeitbereich liegt
+        this.view.setCustomDateLines([new Date(2025, 6, 15)]); // 15. Juli 2025
+
         this.ngZone.onStable.pipe(take(1)).subscribe(() => {
             merge(this.ganttUpper.viewChange, this.ganttUpper.view.start$)
                 .pipe(takeUntil(this.unsubscribe$))
                 .subscribe(() => {
                     this.setTodayPoint();
+                    this.setCustomDateLines();
                 });
         });
     }

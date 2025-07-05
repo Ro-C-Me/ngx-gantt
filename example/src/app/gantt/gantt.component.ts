@@ -56,7 +56,7 @@ export class AppGanttExampleComponent implements OnInit, AfterViewInit {
 
     items: GanttItem[] = [
         { id: '000000', title: 'Task 0', start: 1627729997, end: 1627769997, draggable: false, linkable: false },
-        // { id: '000001', title: 'Task 1', start: 1617361997, end: 1625483597, links: ['000003', '000004', '000000'],  },
+        // { id: '000001', title: 'Task 1', start: 1617361997, end: 1625483597, links: ['000003', '000004', '000000'],  }
         { id: '000001', title: 'Task 1', start: 1617361997, end: 1625483597, links: ['000003', '000004', '0000029'], draggable: false },
         { id: '000002', title: 'Task 2', start: 1617361997, end: 1625483597, progress: 0.5, linkable: false },
         { id: '000003', title: 'Task 3 (不可拖动)', start: 1628507597, end: 1633345997, itemDraggable: false },
@@ -101,6 +101,13 @@ export class AppGanttExampleComponent implements OnInit, AfterViewInit {
     @HostBinding('class.gantt-example-component') class = true;
 
     @ViewChild('gantt') ganttComponent: NgxGanttComponent;
+
+    // Custom date lines für Meilensteine/Deadlines
+    customDateLines: Date[] = [
+        new Date(2025, 6, 15), // 15. Juli 2025
+        new Date(2025, 7, 1), // 1. August 2025
+        new Date(2025, 8, 30) // 30. September 2025
+    ];
 
     dropEnterPredicate = (event: GanttTableDragEnterPredicateContext) => {
         return true;

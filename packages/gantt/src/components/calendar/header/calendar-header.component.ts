@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Inject, NgZone, ElementRef } from '@angular/core';
+import { Component, OnInit, HostBinding, Inject, NgZone, ElementRef, OnDestroy } from '@angular/core';
 import { todayHeight, todayWidth } from '../../../gantt.styles';
 import { GANTT_UPPER_TOKEN, GanttUpper } from '../../../gantt-upper';
 import { GanttViewType } from '../../../class';
@@ -13,7 +13,7 @@ import { NgStyle } from '@angular/common';
     templateUrl: './calendar-header.component.html',
     imports: [NgStyle]
 })
-export class GanttCalendarHeaderComponent implements OnInit {
+export class GanttCalendarHeaderComponent implements OnInit, OnDestroy {
     get view() {
         return this.ganttUpper.view;
     }
@@ -61,5 +61,10 @@ export class GanttCalendarHeaderComponent implements OnInit {
         } else {
             todayEle.style.display = 'none';
         }
+    }
+
+    ngOnDestroy() {
+        this.unsubscribe$.next(void 0);
+        this.unsubscribe$.complete();
     }
 }

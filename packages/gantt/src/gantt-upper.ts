@@ -55,6 +55,22 @@ export abstract class GanttUpper implements OnChanges, OnInit, OnDestroy {
 
     @Input() viewType: GanttViewType = GanttViewType.month;
 
+    // Custom date lines for milestones, deadlines, etc.
+    private _customDateLines: (Date | GanttDate)[] = [];
+
+    @Input()
+    set customDateLines(lines: (Date | GanttDate)[]) {
+        this._customDateLines = lines || [];
+        // Übertrage die customDateLines an die aktuelle View, falls sie existiert
+        if (this.view) {
+            this.view.setCustomDateLines(this._customDateLines);
+        }
+    }
+
+    get customDateLines(): (Date | GanttDate)[] {
+        return this._customDateLines;
+    }
+
     @Input() start: number;
 
     @Input() end: number;
@@ -198,6 +214,11 @@ export abstract class GanttUpper implements OnChanges, OnInit, OnDestroy {
         this.viewOptions.styleOptions = Object.assign({}, this.configService.config.styleOptions, this.viewOptions.styleOptions);
         this.viewOptions.dateDisplayFormats = this.configService.getViewsLocale()[this.viewType]?.dateFormats;
         this.view = createViewFactory(this.viewType, viewDate.start, viewDate.end, this.viewOptions);
+
+        // Übertrage die gespeicherten customDateLines an die neue View
+        if (this._customDateLines.length > 0) {
+            this.view.setCustomDateLines(this._customDateLines);
+        }
     }
 
     private setupGroups() {
@@ -438,6 +459,24 @@ export abstract class GanttUpper implements OnChanges, OnInit, OnDestroy {
             return false;
         }
         return this.selectionModel.isSelected(id);
+    }
+
+    /**
+     * Setzt benutzerdefinierte Datumslinien für Meilensteine, Deadlines, etc.
+     * Diese Linien bleiben bei View-Wechseln erhalten.
+     */
+    setCustomDateLines(lines: (Date | GanttDate)[]): void {
+        this._customDateLines = lines || [];
+        if (this.view) {
+            this.view.setCustomDateLines(this._customDateLines);
+        }
+    }
+
+    /**
+     * Gibt die aktuellen benutzerdefinierten Datumslinien zurück.
+     */
+    getCustomDateLines(): (Date | GanttDate)[] {
+        return this._customDateLines;
     }
 
     changeView(type: GanttViewType) {
