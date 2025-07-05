@@ -17,7 +17,10 @@ export abstract class GanttItemUpper implements OnChanges, OnInit, OnDestroy {
 
     public refsUnsubscribe$ = new Subject<void>();
 
-    constructor(protected elementRef: ElementRef<HTMLElement>, @Inject(GANTT_UPPER_TOKEN) protected ganttUpper: GanttUpper) {}
+    constructor(
+        protected elementRef: ElementRef<HTMLElement>,
+        @Inject(GANTT_UPPER_TOKEN) protected ganttUpper: GanttUpper
+    ) {}
 
     ngOnInit() {
         this.firstChange = false;
@@ -43,13 +46,24 @@ export abstract class GanttItemUpper implements OnChanges, OnInit, OnDestroy {
 
     private setPositions() {
         const itemElement = this.elementRef.nativeElement;
-        itemElement.style.left = this.item.refs?.x + 'px';
-        itemElement.style.top = this.item.refs?.y + 'px';
-        itemElement.style.width = this.item.refs?.width + 'px';
-        if (this.item.type === GanttItemType.bar) {
-            itemElement.style.height = this.ganttUpper.styles.barHeight + 'px';
-        } else if (this.item.type === GanttItemType.range) {
-            itemElement.style.height = rangeHeight + 'px';
+
+        if (this.item.type === GanttItemType.milestone) {
+            // For milestones: center on date and use barHeight for both width and height
+            const milestoneSize = this.ganttUpper.styles.barHeight;
+            itemElement.style.left = this.item.refs?.x - milestoneSize / 2 + 'px';
+            itemElement.style.top = this.item.refs?.y + 'px';
+            itemElement.style.width = milestoneSize + 'px';
+            itemElement.style.height = milestoneSize + 'px';
+        } else {
+            // Regular positioning for bars and ranges
+            itemElement.style.left = this.item.refs?.x + 'px';
+            itemElement.style.top = this.item.refs?.y + 'px';
+            itemElement.style.width = this.item.refs?.width + 'px';
+            if (this.item.type === GanttItemType.bar) {
+                itemElement.style.height = this.ganttUpper.styles.barHeight + 'px';
+            } else if (this.item.type === GanttItemType.range) {
+                itemElement.style.height = rangeHeight + 'px';
+            }
         }
     }
 

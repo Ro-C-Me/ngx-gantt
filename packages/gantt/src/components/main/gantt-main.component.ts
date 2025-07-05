@@ -2,9 +2,11 @@ import { Component, HostBinding, Inject, Input, TemplateRef, Output, EventEmitte
 import { GanttGroupInternal, GanttItemInternal, GanttBarClickEvent, GanttLineClickEvent, GanttItem } from '../../class';
 import { GANTT_UPPER_TOKEN, GanttUpper } from '../../gantt-upper';
 import { IsGanttRangeItemPipe, IsGanttBarItemPipe, IsGanttCustomItemPipe, IsGanttGroupPipe } from '../../gantt.pipe';
+import { IsGanttMilestoneItemPipe } from '../../pipes/is-gantt-milestone-item.pipe';
 import { NgxGanttBaselineComponent } from '../baseline/baseline.component';
 import { NgxGanttBarComponent } from '../bar/bar.component';
 import { NgxGanttRangeComponent } from '../range/range.component';
+import { NgxGanttMilestoneComponent } from '../milestone/milestone.component';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { GanttLinksComponent } from '../links/links.component';
 import { NgxGanttRootComponent } from './../../root.component';
@@ -21,9 +23,11 @@ import { combineLatest, from, Subject, take, takeUntil } from 'rxjs';
         NgTemplateOutlet,
         NgxGanttRangeComponent,
         NgxGanttBarComponent,
+        NgxGanttMilestoneComponent,
         NgxGanttBaselineComponent,
         IsGanttRangeItemPipe,
         IsGanttBarItemPipe,
+        IsGanttMilestoneItemPipe,
         IsGanttCustomItemPipe,
         IsGanttGroupPipe,
         GanttIconComponent
@@ -41,6 +45,8 @@ export class GanttMainComponent implements OnInit {
     @Input() barTemplate: TemplateRef<any>;
 
     @Input() rangeTemplate: TemplateRef<any>;
+
+    @Input() milestoneTemplate: TemplateRef<any>;
 
     @Input() baselineTemplate: TemplateRef<any>;
 

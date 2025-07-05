@@ -25,12 +25,15 @@
           >
           </ng-template>
         }
-        @if ((data.type | isGanttRangeItem) || (data.type | isGanttBarItem)) {
+        @if ((data.type | isGanttRangeItem) || (data.type | isGanttBarItem) || (data.type | isGanttMilestoneItem)) {
           @if (data.type | isGanttRangeItem) {
             <gantt-range [template]="rangeTemplate" [item]="data"></gantt-range>
           }
           @if (data.type | isGanttBarItem) {
             <gantt-bar [item]="data" [template]="barTemplate" (barClick)="barClick.emit($event)"></gantt-bar>
+          }
+          @if (data.type | isGanttMilestoneItem) {
+            <gantt-milestone [item]="data" [template]="milestoneTemplate" (milestoneClick)="barClick.emit($event)"></gantt-milestone>
           }
           @if (ganttUpper.baselineItemsMap[data.id]) {
             <gantt-baseline [baselineItem]="ganttUpper.baselineItemsMap[data.id]" [template]="baselineTemplate"></gantt-baseline>

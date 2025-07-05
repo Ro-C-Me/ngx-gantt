@@ -15,7 +15,8 @@ export interface GanttItemRefs {
 export enum GanttItemType {
     bar = 'bar',
     range = 'range',
-    custom = 'custom'
+    custom = 'custom',
+    milestone = 'milestone'
 }
 
 export interface GanttItem<T = unknown> {
@@ -104,7 +105,7 @@ export class GanttItemInternal {
     }
 
     private fillDateWhenStartOrEndIsNil(item: GanttItem) {
-        if (this.view) {
+        if (this.view && this.type !== GanttItemType.milestone) {
             if (item.start && !item.end) {
                 this.end = this.view.getDateByXPoint(this.view.getXPointByDate(new GanttDate(item.start)) + DEFAULT_FILL_INCREMENT_WIDTH);
             }

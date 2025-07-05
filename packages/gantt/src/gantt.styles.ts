@@ -8,6 +8,8 @@ export const sideMinWidth = 400;
 
 export const barBackground = '#6698ff';
 
+export const milestoneBackground = '#ff6b35';
+
 export const rangeHeight = 17;
 
 export const todayHeight = 24;

@@ -129,6 +129,8 @@ export abstract class GanttUpper implements OnChanges, OnInit, OnDestroy {
 
     @ContentChild('range', { static: true }) rangeTemplate: TemplateRef<any>;
 
+    @ContentChild('milestone', { static: true }) milestoneTemplate: TemplateRef<any>;
+
     @ContentChild('item', { static: true }) itemTemplate: TemplateRef<any>;
 
     @ContentChild('baseline', { static: true }) baselineTemplate: TemplateRef<any>;
@@ -391,11 +393,21 @@ export abstract class GanttUpper implements OnChanges, OnInit, OnDestroy {
 
     computeItemsRefs(...items: GanttItemInternal[] | GanttBaselineItemInternal[]) {
         items.forEach((item) => {
-            item.updateRefs({
-                width: item.start && item.end ? this.view.getDateRangeWidth(item.start, item.end) : 0,
-                x: item.start ? this.view.getXPointByDate(item.start) : 0,
-                y: (this.styles.lineHeight - this.styles.barHeight) / 2 - 1
-            });
+            if (item.type === 'milestone') {
+                // For milestones: width is barHeight, positioned at start date
+                item.updateRefs({
+                    width: this.styles.barHeight,
+                    x: item.start ? this.view.getXPointByDate(item.start) : 0,
+                    y: (this.styles.lineHeight - this.styles.barHeight) / 2 - 1
+                });
+            } else {
+                // Regular calculation for bars and ranges
+                item.updateRefs({
+                    width: item.start && item.end ? this.view.getDateRangeWidth(item.start, item.end) : 0,
+                    x: item.start ? this.view.getXPointByDate(item.start) : 0,
+                    y: (this.styles.lineHeight - this.styles.barHeight) / 2 - 1
+                });
+            }
         });
     }
 

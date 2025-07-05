@@ -1,0 +1,6 @@
+<div class="gantt-milestone-content" #content (click)="onMilestoneClick($event)">
+  <div class="gantt-milestone-diamond"></div>
+  @if (template) {
+    <ng-template [ngTemplateOutlet]="template" [ngTemplateOutletContext]="{ item: item.origin, refs: item.refs }"> </ng-template>
+  }
+</div>
