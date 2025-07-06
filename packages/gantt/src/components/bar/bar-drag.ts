@@ -2,7 +2,7 @@ import { DragDrop, DragRef } from '@angular/cdk/drag-drop';
 import { effect, ElementRef, Injectable, NgZone, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { Subject, animationFrameScheduler, fromEvent, interval } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { GanttViewType } from '../../class';
+import { GanttViewType, GanttItemType } from '../../class';
 import { GanttItemInternal } from '../../class/item';
 import { GanttLinkType } from '../../class/link';
 import { GanttDomService } from '../../gantt-dom.service';
@@ -379,7 +379,13 @@ export class GanttBarDrag implements OnDestroy {
         const currentDate = this.ganttUpper.view.getDateByXPoint(currentX);
         const currentStartX = this.ganttUpper.view.getXPointByDate(currentDate);
 
-        const diffs = this.ganttUpper.view.differenceByPrecisionUnit(this.item().end, this.item().start);
+        // Handle milestones (which typically only have start date)
+        let diffs: number;
+        if (this.item().origin.type === GanttItemType.milestone || !this.item().end) {
+            diffs = 0; // Milestones represent a single point in time
+        } else {
+            diffs = this.ganttUpper.view.differenceByPrecisionUnit(this.item().end, this.item().start);
+        }
 
         let start = currentDate;
         let end = currentDate.add(diffs, this.ganttUpper.view?.options?.datePrecisionUnit);

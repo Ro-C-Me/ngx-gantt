@@ -12,10 +12,16 @@
     </div>
   }
 </div>
-<div class="gantt-bar-border"></div>
-<div #content class="gantt-bar-content" (click)="onBarClick($event)">
-  @if (item.progress >= 0) {
-    <div class="gantt-bar-content-progress" [style.width.%]="item.progress * 100"></div>
+@if (!isMilestone) {
+  <div class="gantt-bar-border"></div>
+}
+<div #content [class]="isMilestone ? 'gantt-milestone-content' : 'gantt-bar-content'" (click)="onBarClick($event)">
+  @if (isMilestone) {
+    <div class="gantt-milestone-diamond"></div>
+  } @else {
+    @if (item.progress >= 0) {
+      <div class="gantt-bar-content-progress" [style.width.%]="item.progress * 100"></div>
+    }
   }
   <ng-template [ngTemplateOutlet]="template" [ngTemplateOutletContext]="{ item: item.origin, refs: item.refs }"> </ng-template>
 </div>

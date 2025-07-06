@@ -20,8 +20,8 @@ import { startWith, switchMap, take, takeUntil } from 'rxjs/operators';
 import { GanttBarDrag } from './bar-drag';
 import { hexToRgb } from '../../utils/helpers';
 import { GanttDragContainer } from '../../gantt-drag-container';
-import { barBackground } from '../../gantt.styles';
-import { GanttBarClickEvent } from '../../class';
+import { barBackground, milestoneBackground } from '../../gantt.styles';
+import { GanttBarClickEvent, GanttItemType } from '../../class';
 import { GANTT_UPPER_TOKEN, GanttUpper } from '../../gantt-upper';
 import { GanttItemUpper } from '../../gantt-item-upper';
 import { NgTemplateOutlet } from '@angular/common';
@@ -33,6 +33,7 @@ function linearGradient(sideOrCorner: string, color: string, stop: string) {
 @Component({
     selector: 'ngx-gantt-bar,gantt-bar',
     templateUrl: './bar.component.html',
+    styleUrl: './bar.component.scss',
     providers: [GanttBarDrag],
     imports: [NgTemplateOutlet]
 })
@@ -41,7 +42,16 @@ export class NgxGanttBarComponent extends GanttItemUpper implements OnInit, Afte
 
     @ViewChild('content') contentElementRef: ElementRef<HTMLDivElement>;
 
-    @HostBinding('class.gantt-bar') ganttItemClass = true;
+    @HostBinding('class.gantt-bar') ganttBarClass = true;
+
+    @HostBinding('class.gantt-milestone')
+    get ganttMilestoneClass() {
+        return this.item?.origin?.type === GanttItemType.milestone;
+    }
+
+    get isMilestone() {
+        return this.item?.origin?.type === GanttItemType.milestone;
+    }
 
     @ViewChildren('handle') handles: QueryList<ElementRef<HTMLElement>>;
 
@@ -125,6 +135,23 @@ export class NgxGanttBarComponent extends GanttItemUpper implements OnInit, Afte
     private setContentBackground() {
         if (this.item.refs?.width) {
             const contentElement = this.contentElementRef.nativeElement;
+
+            // Handle milestone styling - needs to be checked first and early
+            if (this.isMilestone) {
+                console.log('Is milestone, calling setMilestoneStyle');
+                // Clear any existing styling on content element for milestones
+                contentElement.style.background = '';
+                contentElement.style.backgroundColor = '';
+                contentElement.style.borderRadius = '';
+
+                // Use setTimeout to ensure DOM is ready, like in the original milestone component
+                setTimeout(() => {
+                    this.setMilestoneStyle(contentElement);
+                }, 0);
+                return; // Exit early, don't apply bar styling to milestones
+            }
+
+            // Handle regular bar styling only for non-milestones
             const color = this.item.color || barBackground;
             const style: Partial<CSSStyleDeclaration> = this.item.barStyle || {};
             const barElement = this.elementRef.nativeElement;
@@ -159,6 +186,36 @@ export class NgxGanttBarComponent extends GanttItemUpper implements OnInit, Afte
                     contentElement.style[key] = style[key];
                 }
             }
+        }
+    }
+
+    private setMilestoneStyle(contentElement: HTMLDivElement) {
+        const diamondElement = contentElement.querySelector('.gantt-milestone-diamond') as HTMLElement;
+
+        if (diamondElement) {
+            // Use item color if set, otherwise fall back to orange default
+            const finalColor = this.item.color || milestoneBackground;
+
+            console.log('DEBUG Milestone colors:');
+            console.log('- item.color:', this.item.color);
+            console.log('- milestoneBackground:', milestoneBackground);
+            console.log('- final color used:', finalColor);
+
+            diamondElement.style.setProperty('background-color', finalColor, 'important');
+
+            // Apply custom styles if provided
+            if (this.item.barStyle) {
+                console.log('- applying barStyle:', this.item.barStyle);
+                Object.entries(this.item.barStyle).forEach(([key, value]) => {
+                    if (key === 'backgroundColor' || key === 'background-color') {
+                        diamondElement.style.setProperty('background-color', value as string, 'important');
+                    } else {
+                        diamondElement.style.setProperty(key, value as string);
+                    }
+                });
+            }
+        } else {
+            console.log('Diamond element not found for milestone item:', this.item.origin);
         }
     }
 

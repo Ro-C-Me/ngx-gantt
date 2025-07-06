@@ -29,11 +29,12 @@
           @if (data.type | isGanttRangeItem) {
             <gantt-range [template]="rangeTemplate" [item]="data"></gantt-range>
           }
-          @if (data.type | isGanttBarItem) {
-            <gantt-bar [item]="data" [template]="barTemplate" (barClick)="barClick.emit($event)"></gantt-bar>
-          }
-          @if (data.type | isGanttMilestoneItem) {
-            <gantt-milestone [item]="data" [template]="milestoneTemplate" (milestoneClick)="barClick.emit($event)"></gantt-milestone>
+          @if ((data.type | isGanttBarItem) || (data.type | isGanttMilestoneItem)) {
+            <gantt-bar
+              [item]="data"
+              [template]="(data.type | isGanttMilestoneItem) ? milestoneTemplate : barTemplate"
+              (barClick)="barClick.emit($event)"
+            ></gantt-bar>
           }
           @if (ganttUpper.baselineItemsMap[data.id]) {
             <gantt-baseline [baselineItem]="ganttUpper.baselineItemsMap[data.id]" [template]="baselineTemplate"></gantt-baseline>

@@ -10,7 +10,6 @@ export * from './table/gantt-table.component';
 export * from './table/gantt-column.component';
 export * from './components/bar/bar.component';
 export * from './components/range/range.component';
-export * from './components/milestone/milestone.component';
 export * from './components/baseline/baseline.component';
 export * from './components/toolbar/toolbar.component';
 export * from './components/loader/loader.component';
