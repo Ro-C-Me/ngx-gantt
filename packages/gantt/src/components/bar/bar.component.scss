@@ -205,6 +205,23 @@ $gantt-bar-link-drop-border: 5px;
       }
     }
   }
+
+  // Hide only the drag handles for milestones, but keep the layer visible for hover feedback
+  &.gantt-milestone .gantt-bar-layer .drag-handles .handle {
+    display: none !important;
+  }
+
+  // Ensure the milestone layer is visible on hover but behind the content
+  &.gantt-milestone.gantt-bar-active .gantt-bar-layer {
+    display: block;
+    z-index: 0; // Keep layer behind the milestone content
+  }
+
+  // Ensure milestone content stays above the hover layer
+  &.gantt-milestone .gantt-milestone-content {
+    z-index: 2;
+    position: relative;
+  }
 }
 
 // Milestone styles integrated into bar component

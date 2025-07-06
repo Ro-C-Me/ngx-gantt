@@ -123,7 +123,12 @@ export class GanttItemInternal {
         this.start = start;
         this.end = end;
         this.origin.start = this.start.getUnixTime();
-        this.origin.end = this.end.getUnixTime();
+
+        // Only set origin.end if the item originally had an end date
+        // This preserves milestones and tasks without end dates
+        if (this.origin.end !== null && this.origin.end !== undefined) {
+            this.origin.end = this.end.getUnixTime();
+        }
     }
 
     updateLevel(level: number) {

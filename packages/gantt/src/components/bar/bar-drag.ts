@@ -196,8 +196,19 @@ export class GanttBarDrag implements OnDestroy {
             this.dragScrolling = false;
             this.dragScrollDistance = 0;
             this.barDragMoveDistance = 0;
+
+            // Calculate width based on item type
+            let width: number;
+            if (this.item().origin.type === GanttItemType.milestone || !this.item().end) {
+                // For milestones, use barHeight as width (square shape)
+                width = this.ganttUpper.styles.barHeight;
+            } else {
+                // For regular bars, calculate width from date range
+                width = this.ganttUpper.view.getDateRangeWidth(this.item().start, this.item().end);
+            }
+
             this.item().updateRefs({
-                width: this.ganttUpper.view.getDateRangeWidth(this.item().start, this.item().end),
+                width: width,
                 x: this.ganttUpper.view.getXPointByDate(this.item().start),
                 y: (this.ganttUpper.styles.lineHeight - this.ganttUpper.styles.barHeight) / 2 - 1
             });
@@ -262,8 +273,19 @@ export class GanttBarDrag implements OnDestroy {
                 this.dragScrolling = false;
                 this.dragScrollDistance = 0;
                 this.barHandleDragMoveDistance = 0;
+
+                // Calculate width based on item type
+                let width: number;
+                if (this.item().origin.type === GanttItemType.milestone || !this.item().end) {
+                    // For milestones, use barHeight as width (square shape)
+                    width = this.ganttUpper.styles.barHeight;
+                } else {
+                    // For regular bars, calculate width from date range
+                    width = this.ganttUpper.view.getDateRangeWidth(this.item().start, this.item().end);
+                }
+
                 this.item().updateRefs({
-                    width: this.ganttUpper.view.getDateRangeWidth(this.item().start, this.item().end),
+                    width: width,
                     x: this.ganttUpper.view.getXPointByDate(this.item().start),
                     y: (this.ganttUpper.styles.lineHeight - this.ganttUpper.styles.barHeight) / 2 - 1
                 });
@@ -355,8 +377,18 @@ export class GanttBarDrag implements OnDestroy {
         dragMaskElement.style.display = 'block';
         dragBackdropElement.style.display = 'block';
         // This will invalidate the layout, but we won't need re-layout, because we set styles previously.
-        dragMaskElement.querySelector('.start').innerHTML = start.format(this.ganttUpper.view.options.dragPreviewDateFormat);
-        dragMaskElement.querySelector('.end').innerHTML = end.format(this.ganttUpper.view.options.dragPreviewDateFormat);
+        const startElement = dragMaskElement.querySelector('.start') as HTMLElement;
+        const endElement = dragMaskElement.querySelector('.end') as HTMLElement;
+
+        startElement.innerHTML = start.format(this.ganttUpper.view.options.dragPreviewDateFormat);
+
+        // For milestones and items without end date, only show start date
+        if (this.item().origin.type === GanttItemType.milestone || !this.item().end) {
+            endElement.style.display = 'none';
+        } else {
+            endElement.innerHTML = end.format(this.ganttUpper.view.options.dragPreviewDateFormat);
+            endElement.style.display = '';
+        }
     }
 
     private closeDragBackdrop() {
@@ -599,7 +631,16 @@ export class GanttBarDrag implements OnDestroy {
     }
 
     private updateItemDate(start: GanttDate, end: GanttDate) {
-        this.item().updateDate(this.ganttUpper.view.startOfPrecision(start), this.ganttUpper.view.endOfPrecision(end));
+        // For milestones and items without original end date, only update start
+        if (
+            this.item().origin.type === GanttItemType.milestone ||
+            this.item().origin.end === null ||
+            this.item().origin.end === undefined
+        ) {
+            this.item().updateDate(this.ganttUpper.view.startOfPrecision(start), this.item().end);
+        } else {
+            this.item().updateDate(this.ganttUpper.view.startOfPrecision(start), this.ganttUpper.view.endOfPrecision(end));
+        }
     }
 
     initialize(elementRef: ElementRef, item: GanttItemInternal, ganttUpper: GanttUpper) {
