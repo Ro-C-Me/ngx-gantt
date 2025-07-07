@@ -227,6 +227,7 @@ $gantt-bar-link-drop-border: 5px;
 // Milestone styles integrated into bar component
 .gantt-milestone {
   cursor: pointer;
+  background-color: transparent; // Remove white background behind milestone diamond
 
   .gantt-milestone-content {
     width: 100%;
