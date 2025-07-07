@@ -299,8 +299,16 @@ export class GanttBarDrag implements OnDestroy {
     private createLinkHandleDrags() {
         const dragRefs = [];
         const handles = this.barElement.querySelectorAll<HTMLElement>('.link-handles .handle');
+        const isMilestone = this.item().origin.type === GanttItemType.milestone || !this.item().end;
+
         handles.forEach((handle, index) => {
             const isBegin = index === 0;
+
+            // Für Meilensteine nur das erste Handle (Start) verwenden
+            if (isMilestone && !isBegin) {
+                return;
+            }
+
             const dragRef = this.dragDrop.createDrag(handle);
             dragRef.disabled = this.linkDragDisabled;
             dragRef.withBoundaryElement(this.dom.root as HTMLElement);
@@ -313,12 +321,14 @@ export class GanttBarDrag implements OnDestroy {
                 this.dragContainer.emitLinkDragStarted({
                     element: this.barElement,
                     item: this.item(),
-                    pos: isBegin ? InBarPosition.start : InBarPosition.finish
+                    // Für Meilensteine immer Start-Position verwenden
+                    pos: isMilestone ? InBarPosition.start : isBegin ? InBarPosition.start : InBarPosition.finish
                 });
             });
 
             dragRef.moved.subscribe(() => {
-                const positions = this.calcLinkLinePositions(handle, isBegin);
+                // Für Meilensteine immer Start-Position für Linienberechnungen verwenden
+                const positions = this.calcLinkLinePositions(handle, isMilestone ? true : isBegin);
                 this.linkDraggingLine.setAttribute('x1', positions.x1.toString());
                 this.linkDraggingLine.setAttribute('y1', positions.y1.toString());
                 this.linkDraggingLine.setAttribute('x2', positions.x2.toString());
@@ -330,18 +340,27 @@ export class GanttBarDrag implements OnDestroy {
                 if (this.barDragRef) {
                     this.barDragRef.disabled = false;
                 }
-                // 计算line拖动的落点位于目标Bar的值，如果值大于Bar宽度的一半，说明是拖动到Begin位置，否则则为拖动到End位置
+
                 if (this.dragContainer.linkDragPath.to) {
-                    const placePointX =
-                        event.source.getRootElement().getBoundingClientRect().x -
-                        this.dragContainer.linkDragPath.to.element.getBoundingClientRect().x;
+                    let targetPos: InBarPosition;
+
+                    if (isMilestone) {
+                        // Für Meilensteine immer Start-Position verwenden
+                        targetPos = InBarPosition.start;
+                    } else {
+                        // Berechnung der Drop-Position nur für normale Tasks
+                        const placePointX =
+                            event.source.getRootElement().getBoundingClientRect().x -
+                            this.dragContainer.linkDragPath.to.element.getBoundingClientRect().x;
+                        targetPos =
+                            placePointX < this.dragContainer.linkDragPath.to.item.refs.width / 2
+                                ? InBarPosition.start
+                                : InBarPosition.finish;
+                    }
 
                     this.dragContainer.emitLinkDragEnded({
                         ...this.dragContainer.linkDragPath.to,
-                        pos:
-                            placePointX < this.dragContainer.linkDragPath.to.item.refs.width / 2
-                                ? InBarPosition.start
-                                : InBarPosition.finish
+                        pos: targetPos
                     });
                 } else {
                     this.dragContainer.emitLinkDragEnded();

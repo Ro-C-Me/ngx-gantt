@@ -7,8 +7,11 @@
   </div>
   @if (item.linkable && ganttUpper.linkable) {
     <div class="link-handles">
+      <!-- Für Meilensteine nur ein Handle, für normale Tasks zwei -->
       <span class="handle"><span class="point"></span></span>
-      <span class="handle"> <span class="point"></span></span>
+      @if (!isMilestone) {
+        <span class="handle"> <span class="point"></span></span>
+      }
     </div>
   }
 </div>

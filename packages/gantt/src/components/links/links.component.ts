@@ -174,16 +174,34 @@ export class GanttLinksComponent implements OnInit, OnChanges, OnDestroy {
                         let defaultColor: string = LinkColors.default;
                         let activeColor: string = LinkColors.active;
 
-                        if (link.type === GanttLinkType.ff && source.end.getTime() > target.end.getTime()) {
+                        // Helper function to safely get time, treating null/undefined as start time for milestones
+                        const getTime = (date: any, fallbackDate: any) => {
+                            return date && date.getTime
+                                ? date.getTime()
+                                : fallbackDate && fallbackDate.getTime
+                                  ? fallbackDate.getTime()
+                                  : 0;
+                        };
+
+                        if (link.type === GanttLinkType.ff && getTime(source.end, source.start) > getTime(target.end, target.start)) {
                             defaultColor = LinkColors.blocked;
                             activeColor = LinkColors.blocked;
-                        } else if (link.type === GanttLinkType.fs && source.end.getTime() > target.start.getTime()) {
+                        } else if (
+                            link.type === GanttLinkType.fs &&
+                            getTime(source.end, source.start) > getTime(target.start, target.start)
+                        ) {
                             defaultColor = LinkColors.blocked;
                             activeColor = LinkColors.blocked;
-                        } else if (link.type === GanttLinkType.sf && source.start.getTime() > target.end.getTime()) {
+                        } else if (
+                            link.type === GanttLinkType.sf &&
+                            getTime(source.start, source.start) > getTime(target.end, target.start)
+                        ) {
                             defaultColor = LinkColors.blocked;
                             activeColor = LinkColors.blocked;
-                        } else if (link.type === GanttLinkType.ss && source.start.getTime() > target.start.getTime()) {
+                        } else if (
+                            link.type === GanttLinkType.ss &&
+                            getTime(source.start, source.start) > getTime(target.start, target.start)
+                        ) {
                             defaultColor = LinkColors.blocked;
                             activeColor = LinkColors.blocked;
                         } else if (link.color) {
