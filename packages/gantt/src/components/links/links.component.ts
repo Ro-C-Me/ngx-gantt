@@ -20,6 +20,7 @@ import { GanttLineClickEvent } from '../../class/event';
 import { GanttDragContainer } from '../../gantt-drag-container';
 import { GANTT_UPPER_TOKEN, GanttUpper } from '../../gantt-upper';
 import { GanttLinkItem, LinkInternal, LinkColors, GanttLinkType } from '../../class/link';
+import { GanttItemType } from '../../class';
 import { GanttLinkLine } from './lines/line';
 import { createLineGenerator } from './lines/factory';
 
@@ -147,14 +148,30 @@ export class GanttLinksComponent implements OnInit, OnChanges, OnDestroy {
                 const ganttItem = item as GanttItemInternal;
                 if (ganttItem.refs) {
                     const y = itemIndex * lineHeight + ganttItem.refs.y + barHeight / 2;
+                    const isMilestone = ganttItem.origin.type === GanttItemType.milestone || !ganttItem.end;
+
+                    let beforeX: number;
+                    let afterX: number;
+
+                    if (isMilestone) {
+                        // Für Meilensteine beide Positionen in der Mitte
+                        const centerX = ganttItem.refs.x + ganttItem.refs.width / 2;
+                        beforeX = centerX;
+                        afterX = centerX;
+                    } else {
+                        // Für normale Tasks: links und rechts
+                        beforeX = ganttItem.refs.x;
+                        afterX = ganttItem.refs.x + ganttItem.refs.width;
+                    }
+
                     this.linkItems.push({
                         ...ganttItem,
                         before: {
-                            x: ganttItem.refs.x,
+                            x: beforeX,
                             y
                         },
                         after: {
-                            x: ganttItem.refs.x + ganttItem.refs.width,
+                            x: afterX,
                             y
                         }
                     });

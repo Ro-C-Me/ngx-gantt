@@ -524,8 +524,19 @@ export class GanttBarDrag implements OnDestroy {
         const rootRect = this.dom.root.getBoundingClientRect();
         const targetRect = target.getBoundingClientRect();
         const layerRect = target.parentElement.parentElement.getBoundingClientRect();
+        const isMilestone = this.item().origin.type === GanttItemType.milestone || !this.item().end;
+
+        let x1: number;
+        if (isMilestone) {
+            // Für Meilensteine immer von der Mitte des Meilensteins starten
+            x1 = layerRect.left + layerRect.width / 2 - rootRect.left;
+        } else {
+            // Für normale Tasks: links für Start, rechts für Ende
+            x1 = layerRect.left + (isBefore ? 0 : layerRect.width) - rootRect.left;
+        }
+
         return {
-            x1: layerRect.left + (isBefore ? 0 : layerRect.width) - rootRect.left,
+            x1: x1,
             y1: layerRect.top + layerRect.height / 2 - rootRect.top,
             x2: targetRect.left - rootRect.left + targetRect.width / 2,
             y2: targetRect.top - rootRect.top + targetRect.height / 2
